@@ -1,0 +1,20 @@
+
+TemplatePlugin/Debug/*
+TemplatePlugin/Release/*
+TemplatePlugin/GeneratedFiles/*
+Win32/*
+ipch/*
+
+*.user
+*.sdf
+*.opensdf
+*.suo
+
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
