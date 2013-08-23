@@ -2,6 +2,10 @@
 TemplatePlugin/Debug/*
 TemplatePlugin/Release/*
 TemplatePlugin/GeneratedFiles/*
+*Release/*
+*Debug/*
+*release/*
+*debug/*
 Win32/*
 ipch/*
 
