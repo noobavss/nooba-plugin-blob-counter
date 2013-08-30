@@ -2,14 +2,17 @@
 #define TEMPLATEPLUGIN_H
 
 #include "templateplugin_global.h"
+#include "noobapluginapi.h"
 
-#include <noobapluginapi.h>
-#include <opencv2/core/core.hpp>
+#include <QObject>
 
 class TEMPLATEPLUGIN_EXPORT TemplatePlugin: public NoobaPluginAPI
 {
     Q_OBJECT
     Q_INTERFACES(NoobaPluginAPI)
+#if QT_VERSION >= 0x050000
+    Q_PLUGIN_METADATA(IID "nooba.plugins.qt5.template-plugin" FILE "templatePlugin.json")
+#endif
 
 public:
     TemplatePlugin();
