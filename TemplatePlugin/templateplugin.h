@@ -23,7 +23,17 @@ public:
     bool release();
     PluginInfo getPluginInfo() const;
 
-private:
+public slots:
+
+    /**
+     * These functions will be called when the parameters are changed by the
+     * user.
+     */
+//    void onIntParamChanged(const QString& varName, int val);
+//    void onDoubleParamChanged(const QString& varName, double val);
+//    void onStringParamChanged(const QString& varName, const QString& val);
+//    void onMultiValParamChanged(const QString& varName, const QString& val);
+
 
 };
 

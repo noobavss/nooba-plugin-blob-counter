@@ -8,8 +8,8 @@ QT -= gui
 
 TARGET = templatePlugin
 
-CONFIG(debug, debug|release): TARGET = TestPlugin_Debug
-CONFIG(release, debug|release): TARGET = TestPlugin_Release
+CONFIG(debug, debug|release): TARGET = TemplatePlugin_Debug
+CONFIG(release, debug|release): TARGET = TemplatePlugin_Release
 
 TEMPLATE = lib
 CONFIG += dll
