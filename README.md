@@ -1,4 +1,4 @@
-nooba-plugin-template
+nooba-plugin-blobcounter
 =====================
 
-template plugin for the current Nooba plugin API
+blobcounter plugin for the current Nooba plugin API
