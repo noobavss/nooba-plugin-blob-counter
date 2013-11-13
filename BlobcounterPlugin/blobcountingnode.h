@@ -5,6 +5,8 @@
 #include <QStringList>
 #include <QDebug>
 #include <QHash>
+#include <QPoint>
+
 #include <featurenode.h>
 
 class BlobCountingNode : public FeatureNode
@@ -16,8 +18,19 @@ public:
     void processEvents(const QList<DetectedEvent> event);
 
 private:
-    QHash<QString,DetectedEvent> previousEvents;
+    QPoint point1;
+    QPoint point2;
 
+
+    enum BlobRegion
+    {
+      BLOB_REGION_UNKNOWN = 0,
+      BLOB_REGION_ONE  = 1,
+      BLOB_REGION_TWO  = 2
+    };
+
+    QHash<QString,DetectedEvent> previousEvents;
+    BlobRegion getBlobRegion(QPoint centroid);
 };
 
 #endif // BLOBCOUNTINGNODE_H
