@@ -8,14 +8,8 @@
 
 #include <detectedevent.h>
 #include <featurenode.h>
-
-#include "package_bgs/StaticFrameDifferenceBGS.h"
-#include "package_bgs/MixtureOfGaussianV2BGS.h"
-#include "package_tracking/BlobTrackingNode.h"
-
-#include "filewriternode.h"
-
-#include "package_analysis/BlobCounting.h"
+#include <blobcountingnode.h>
+//#include "filewriternode.h"
 
 class BLOBCOUNTERPLUGIN_EXPORT BlobcounterPlugin: public NoobaPluginAPI
 {
@@ -40,23 +34,20 @@ public slots:
      * These functions will be called when the parameters are changed by the
      * user.
      */
-    void onStringParamChanged(const QString& varName, const QString& val);
-    void onIntParamChanged(const QString &varName, int val);
-    void onDoubleParamChanged(const QString &varName, double val);
-    void onMultiValParamChanged(const QString &varName, const QString &val);
+//    void onStringParamChanged(const QString& varName, const QString& val);
+//    void onIntParamChanged(const QString &varName, int val);
+//    void onDoubleParamChanged(const QString &varName, double val);
+//    void onMultiValParamChanged(const QString &varName, const QString &val);
+
+    void inputData(const PluginPassData& data);
+
     void onCaptureEvent(QList<DetectedEvent> captured_event);
 
-private:
-    QString output_file;
-    QString background_subtractor;
-    cv::Mat img_blob;
-    cv::Mat img_mask;
-    StaticFrameDifferenceBGS staticBGS;
-    MixtureOfGaussianV2BGS mogBGS;
-    BlobCounting blobCounting;
-    BlobTrackingNode blobTrackingNode;
-    FileWriterNode blobEventWriterNode;
+signals:
+    void generateEvent(QList<DetectedEvent> generated_event);
 
+private:
+    BlobCountingNode blobCounter;
 };
 
 #endif // BLOBCOUNTERPLUGIN_H
