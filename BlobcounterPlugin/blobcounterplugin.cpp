@@ -1,6 +1,7 @@
 #include "blobcounterplugin.h"
 #include <QtCore>
 
+#include <QImage>
 #include <QDebug>
 // opencv includes
 #include <opencv2/core/core.hpp>
@@ -28,9 +29,12 @@ bool BlobcounterPlugin::procFrame( const cv::Mat &in, cv::Mat &out, ProcParams &
 
 bool BlobcounterPlugin::init()
 {
-    connect(this, SIGNAL(generateEvent(QList<DetectedEvent>)), this, SLOT(onCaptureEvent(QList<DetectedEvent>)));
-    connect(&blobCounter, SIGNAL(generateEvent(QList<DetectedEvent>)), this, SLOT(onCaptureEvent(QList<DetectedEvent>)));
-    connect(this, SIGNAL(generateEvent(QList<DetectedEvent>)), &blobCounter, SLOT(captureEvent(QList<DetectedEvent>)));
+    //connect(this, SIGNAL(generateEvent(QList<DetectedEvent>)), this, SLOT(onCaptureEvent(QList<DetectedEvent>)));
+    connect(this, SIGNAL(generateEvent(QList<DetectedEvent>)), &lineCrossDetector, SLOT(captureEvent(QList<DetectedEvent>)));
+    connect(&lineCrossDetector, SIGNAL(generateEvent(QList<DetectedEvent>)), &lineCrossCounter, SLOT(captureEvent(QList<DetectedEvent>)));
+    connect(&lineCrossCounter, SIGNAL(generateEvent(QList<DetectedEvent>)), this, SLOT(onCaptureEvent(QList<DetectedEvent>)));
+
+    createFrameViewer("CountingLine");
 
     return true;
 }
@@ -69,11 +73,26 @@ void BlobcounterPlugin::inputData(const PluginPassData& data){
         QList<QString> parameters = str.split(" ");
         receivedEvents.append(DetectedEvent(parameters.at(0),parameters.at(1),parameters.at(2).toFloat()));
     }
+
+    QImage temp = data.getImage();
+
+    cv::Mat lineviewer(temp.height(),temp.width(),CV_8UC3,(uchar*)temp.bits(),temp.bytesPerLine());
+    cv::line(lineviewer,cv::Point(lineCrossDetector.getPoint1().x(),lineCrossDetector.getPoint1().y()),
+             cv::Point(lineCrossDetector.getPoint2().x(),lineCrossDetector.getPoint2().y()),
+             cv::Scalar(0,0,255));
+
+
+    updateFrameViewer("CountingLine",convertToQImage(lineviewer));
+
     emit generateEvent(receivedEvents);
     return;
 }
 
-
+QImage BlobcounterPlugin::convertToQImage(const cv::Mat &cvImg)
+{
+    return QImage((const unsigned char*)(cvImg.data),
+                cvImg.cols,cvImg.rows,cvImg.step,  QImage::Format_RGB888);
+}
 
 // see qt4 documentation for details on the macro (Qt Assistant app)
 // Mandatory  macro for plugins in qt4. Made obsolete in qt5

@@ -4,7 +4,7 @@
 CONFIG(debug, debug|release):    message(Debug build!)
 CONFIG(release, debug|release):    message(Release build!)
 
-QT -= gui
+QT += core gui
 
 TARGET = blobcounterPlugin
 
@@ -20,7 +20,8 @@ DEFINES += BLOBCOUNTERPLUGIN_LIB
 HEADERS += blobcounterplugin.h blobcounterplugin_global.h \ #\
     detectedevent.h \
     featurenode.h \
-    blobcountingnode.h
+    linecrossingnode.h \
+    linecrosscountnode.h
 #    filewriternode.h \
 #    detectedevent.h \
 #    featurenode.h \
@@ -29,7 +30,8 @@ HEADERS += blobcounterplugin.h blobcounterplugin_global.h \ #\
 SOURCES += blobcounterplugin.cpp \ #\
     detecedevent.cpp \
     featurenode.cpp \
-    blobcountingnode.cpp
+    linecrossingnode.cpp \
+    linecrosscountnode.cpp
 #    filewriternode.cpp \
 #    detecedevent.cpp \
 #    featurenode.cpp \

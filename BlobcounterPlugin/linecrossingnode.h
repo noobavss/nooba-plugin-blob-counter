@@ -1,5 +1,5 @@
-#ifndef BLOBCOUNTINGNODE_H
-#define BLOBCOUNTINGNODE_H
+#ifndef LINECROSSINGNODE_H
+#define LINECROSSINGNODE_H
 
 #include <QList>
 #include <QStringList>
@@ -9,13 +9,15 @@
 
 #include <featurenode.h>
 
-class BlobCountingNode : public FeatureNode
+class LineCrossingNode : public FeatureNode
 {
 public:
-    explicit BlobCountingNode(FeatureNode* parent = 0);
-    ~BlobCountingNode();
+    explicit LineCrossingNode(FeatureNode* parent = 0);
+    ~LineCrossingNode();
 
     void processEvents(const QList<DetectedEvent> event);
+    inline QPoint getPoint1(){return point1;}
+    inline QPoint getPoint2(){return point2;}
 
 private:
     QPoint point1;
@@ -33,4 +35,4 @@ private:
     BlobRegion getBlobRegion(QPoint centroid);
 };
 
-#endif // BLOBCOUNTINGNODE_H
+#endif // LINECROSSINGNODE_H

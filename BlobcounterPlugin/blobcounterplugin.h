@@ -4,11 +4,13 @@
 #include "blobcounterplugin_global.h"
 #include "noobapluginapi.h"
 
+#include <QImage>
 #include <QObject>
 
 #include <detectedevent.h>
 #include <featurenode.h>
-#include <blobcountingnode.h>
+#include <linecrossingnode.h>
+#include <linecrosscountnode.h>
 //#include "filewriternode.h"
 
 class BLOBCOUNTERPLUGIN_EXPORT BlobcounterPlugin: public NoobaPluginAPI
@@ -47,7 +49,9 @@ signals:
     void generateEvent(QList<DetectedEvent> generated_event);
 
 private:
-    BlobCountingNode blobCounter;
+    LineCrossingNode lineCrossDetector;
+    LineCrossCountNode lineCrossCounter;
+    QImage convertToQImage(const cv::Mat &cvImg);
 };
 
 #endif // BLOBCOUNTERPLUGIN_H

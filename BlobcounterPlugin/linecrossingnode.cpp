@@ -1,19 +1,19 @@
-#include "blobcountingnode.h"
+#include "linecrossingnode.h"
 
-BlobCountingNode::BlobCountingNode(FeatureNode *parent) :
+LineCrossingNode::LineCrossingNode(FeatureNode *parent) :
     FeatureNode(parent),
     point1(QPoint(500.0,0.0)),
     point2(QPoint(500.0,700.0))
 {
 }
 
-BlobCountingNode::~BlobCountingNode()
+LineCrossingNode::~LineCrossingNode()
 {
 
 }
 
 
-void BlobCountingNode::processEvents(const QList<DetectedEvent> event)
+void LineCrossingNode::processEvents(const QList<DetectedEvent> event)
 {
 
 
@@ -50,7 +50,7 @@ void BlobCountingNode::processEvents(const QList<DetectedEvent> event)
                 }
             }
             else{
-                corssAreaEvent.append(DetectedEvent("crossed",QString("%1,%2,%3").arg(newMessage.at(0)).arg(newMessage.at(1)).arg("notImplementedYet"),1.0));
+                //corssAreaEvent.append(DetectedEvent("crossed",QString("%1,%2,%3").arg(newMessage.at(0)).arg(newMessage.at(1)).arg("notImplementedYet"),1.0));
 
             }
         }
@@ -67,11 +67,11 @@ void BlobCountingNode::processEvents(const QList<DetectedEvent> event)
     }
 }
 
-BlobCountingNode::BlobRegion BlobCountingNode::getBlobRegion(QPoint centroid)
+LineCrossingNode::BlobRegion LineCrossingNode::getBlobRegion(QPoint centroid)
 {
   BlobRegion blobRegion = BLOB_REGION_UNKNOWN;
 
-  qDebug() <<"p1.x " << point1.x() << " p2.x " << point2.x() << "centroid.x " << centroid.x();
+  //qDebug() <<"p1.x " << point1.x() << " p2.x " << point2.x() << "centroid.x " << centroid.x();
 
   //Page 1017  Introduction to algorithms
   //Thomson H. Cormen
@@ -80,7 +80,7 @@ BlobCountingNode::BlobRegion BlobCountingNode::getBlobRegion(QPoint centroid)
   float crossproduct = (point2.x() - point1.x()) * (centroid.y() - - point1.y()) - (centroid.x() - point1.x()) * (point2.y() - point1.y());
 
 
-  qDebug() <<"crossproduct " << crossproduct;
+  //qDebug() <<"crossproduct " << crossproduct;
   if(crossproduct > 0.0){
       blobRegion = BLOB_REGION_ONE;
   }
