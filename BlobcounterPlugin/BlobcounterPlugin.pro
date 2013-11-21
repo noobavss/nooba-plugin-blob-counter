@@ -17,25 +17,19 @@ CONFIG += dll
 DEFINES += BLOBCOUNTERPLUGIN_LIB
 
 # Input
-HEADERS += blobcounterplugin.h blobcounterplugin_global.h \ #\
+HEADERS += blobcounterplugin.h blobcounterplugin_global.h \
     detectedevent.h \
-    featurenode.h \
-    linecrossingnode.h \
-    linecrosscountnode.h
-#    filewriternode.h \
-#    detectedevent.h \
-#    featurenode.h \
-#    blobcountingnode.h
+    linecrosscountnode.h \
+    linecrossingnode.h
 
-SOURCES += blobcounterplugin.cpp \ #\
-    detecedevent.cpp \
+
+
+SOURCES += blobcounterplugin.cpp \
     featurenode.cpp \
-    linecrossingnode.cpp \
-    linecrosscountnode.cpp
-#    filewriternode.cpp \
-#    detecedevent.cpp \
-#    featurenode.cpp \
-#    blobcountingnode.cpp
+    detectedevent.cpp \
+    linecrosscountnode.cpp \
+    linecrossingnode.cpp
+
 
 CONFIG(debug, debug|release): DESTDIR = $$PWD/../../../NoobaVSS_build/NoobaFE/Debug/plugins/
 CONFIG(release, debug|release): DESTDIR = $$PWD/../../../NoobaVSS_build/NoobaFE/Release/plugins/

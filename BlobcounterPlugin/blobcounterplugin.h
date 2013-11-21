@@ -37,9 +37,10 @@ public slots:
      * user.
      */
 //    void onStringParamChanged(const QString& varName, const QString& val);
-//    void onIntParamChanged(const QString &varName, int val);
+    void onIntParamChanged(const QString &varName, int val);
 //    void onDoubleParamChanged(const QString &varName, double val);
 //    void onMultiValParamChanged(const QString &varName, const QString &val);
+//    void onPointParamChanged(const QString& varName, const QPointF& val);
 
     void inputData(const PluginPassData& data);
 
@@ -51,7 +52,7 @@ signals:
 private:
     LineCrossingNode lineCrossDetector;
     LineCrossCountNode lineCrossCounter;
-    QImage convertToQImage(const cv::Mat &cvImg);
+    QImage convertToQImage(cv::Mat &cvImg);
 };
 
 #endif // BLOBCOUNTERPLUGIN_H

@@ -3,6 +3,8 @@
 
 #include <QImage>
 #include <QDebug>
+//#include <QPoint>
+//#include <QPointF>
 // opencv includes
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -36,6 +38,13 @@ bool BlobcounterPlugin::init()
 
     createFrameViewer("CountingLine");
 
+    createIntParam("point1-x",500,1024,0);
+    createIntParam("point1-y",0,768,0);
+    createIntParam("point2-x",500,1024,0);
+    createIntParam("point2-y",700,768,0);
+
+//    createPointParam("Point1",QPoint(500,0));
+//    createPointParam("Point2",QPoint(500,700));
     return true;
 }
 
@@ -64,6 +73,41 @@ void BlobcounterPlugin::onCaptureEvent(QList<DetectedEvent> captured_event){
     return;
 }
 
+void BlobcounterPlugin::onIntParamChanged(const QString &varName, int val){
+    if(varName == "point1-x"){
+        lineCrossDetector.setPoint1_x(val);
+        debugMsg("point1-x set to"  + QString("%1").arg(val));
+    }
+    else if(varName == "point1-y"){
+        lineCrossDetector.setPoint1_y(val);
+        debugMsg("point1-y set to "  + QString("%1").arg(val));
+    }
+    else if(varName == "point2-x"){
+        lineCrossDetector.setPoint2_x(val);
+        debugMsg("point2-x set to "  + QString("%1").arg(val));
+    }
+    else if(varName == "point2-y"){
+        lineCrossDetector.setPoint2_y(val);
+        debugMsg("point2-y set to "  + QString("%1").arg(val));
+    }
+}
+
+//void BlobcounterPlugin::onPointParamChanged(const QString& varName, const QPointF& val){
+//    QPoint p;
+//    p = val.toPoint();
+//    if(varName == "Point1"){
+
+//        lineCrossDetector.setPoint1_x(p.x());
+//        lineCrossDetector.setPoint1_y(p.y());
+//        debugMsg(QString("Point1 set to (%1,%2)").arg(p.x()).arg(p.y()));
+//    }
+//    else if(varName == "Point2"){
+//        lineCrossDetector.setPoint2_x(p.x());
+//        lineCrossDetector.setPoint2_y(p.y());
+//        debugMsg(QString("Point2 set to (%1,%2)").arg(p.x()).arg(p.y()));
+//    }
+//    return;
+//}
 
 void BlobcounterPlugin::inputData(const PluginPassData& data){
 
@@ -79,7 +123,7 @@ void BlobcounterPlugin::inputData(const PluginPassData& data){
     cv::Mat lineviewer(temp.height(),temp.width(),CV_8UC3,(uchar*)temp.bits(),temp.bytesPerLine());
     cv::line(lineviewer,cv::Point(lineCrossDetector.getPoint1().x(),lineCrossDetector.getPoint1().y()),
              cv::Point(lineCrossDetector.getPoint2().x(),lineCrossDetector.getPoint2().y()),
-             cv::Scalar(0,0,255));
+             cv::Scalar(0,0,255),3);
 
 
     updateFrameViewer("CountingLine",convertToQImage(lineviewer));
@@ -88,12 +132,17 @@ void BlobcounterPlugin::inputData(const PluginPassData& data){
     return;
 }
 
-QImage BlobcounterPlugin::convertToQImage(const cv::Mat &cvImg)
+QImage BlobcounterPlugin::convertToQImage(cv::Mat &cvImg)
 {
-    return QImage((const unsigned char*)(cvImg.data),
-                cvImg.cols,cvImg.rows,cvImg.step,  QImage::Format_RGB888);
+    if (cvImg.channels()== 1){
+        QImage img((uchar*)cvImg.data, cvImg.cols, cvImg.rows, cvImg.step1(), QImage::Format_Indexed8);
+        return img;
+    }
+    else{
+        QImage img((uchar*)cvImg.data, cvImg.cols, cvImg.rows, cvImg.step1(), QImage::Format_RGB888);
+        return img;
+    }
 }
-
 // see qt4 documentation for details on the macro (Qt Assistant app)
 // Mandatory  macro for plugins in qt4. Made obsolete in qt5
 #if QT_VERSION < 0x050000
