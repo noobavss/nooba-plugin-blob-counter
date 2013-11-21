@@ -20,9 +20,8 @@ DEFINES += BLOBCOUNTERPLUGIN_LIB
 HEADERS += blobcounterplugin.h blobcounterplugin_global.h \
     detectedevent.h \
     linecrosscountnode.h \
-    linecrossingnode.h
-
-
+    linecrossingnode.h \
+    featurenode.h
 
 SOURCES += blobcounterplugin.cpp \
     featurenode.cpp \

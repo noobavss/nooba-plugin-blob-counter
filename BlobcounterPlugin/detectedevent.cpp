@@ -5,8 +5,7 @@ DetectedEvent::DetectedEvent(QObject *parent)
 {
 }
 
-DetectedEvent::DetectedEvent(const DetectedEvent &other,QObject *parent)
-    :QObject(parent)
+DetectedEvent::DetectedEvent(const DetectedEvent &other)
 {
     event_identifier = other.getIdentifier();
     event_message = other.getMessage();
@@ -17,10 +16,13 @@ DetectedEvent::~DetectedEvent()
 {
 }
 
-DetectedEvent & DetectedEvent::operator =(const DetectedEvent &other)
+DetectedEvent & DetectedEvent::operator =(const DetectedEvent &rhs)
 {
-    event_identifier = other.getIdentifier();
-    event_message = other.getMessage();
-    confidence = other.getConfidence();
+    if(&rhs == this)
+        return *this;
+
+    event_identifier = rhs.getIdentifier();
+    event_message = rhs.getMessage();
+    confidence = rhs.getConfidence();
     return *this;
 }
