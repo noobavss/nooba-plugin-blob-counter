@@ -22,6 +22,19 @@ void LineCrossingNode::processEvents(const QList<DetectedEvent> event)
     //This is output event
     QList<DetectedEvent> corssAreaEvent;
 
+    corssAreaEvent = processEventsLocal(event);
+
+    if(!corssAreaEvent.isEmpty()){
+        emit generateEvent(corssAreaEvent);
+    }
+}
+
+QList<DetectedEvent> LineCrossingNode::processEventsLocal(const QList<DetectedEvent> event)
+{
+
+    //This is output event
+    QList<DetectedEvent> corssAreaEvent;
+
 
     //previousEvents hash map consists of last received events regarding each blob tag.
     //if this is empty, we can't compare the area which was earlier, so no crossings.
@@ -62,9 +75,7 @@ void LineCrossingNode::processEvents(const QList<DetectedEvent> event)
         QList<QString> message = e.getMessage().split(",");
         previousEvents.insert(message.at(1),e);
     }
-    if(!corssAreaEvent.isEmpty()){
-        emit generateEvent(corssAreaEvent);
-    }
+    return corssAreaEvent;
 }
 
 LineCrossingNode::BlobRegion LineCrossingNode::getBlobRegion(QPoint centroid)

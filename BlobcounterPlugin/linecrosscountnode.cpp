@@ -23,6 +23,18 @@ void LineCrossCountNode::processEvents(const QList<DetectedEvent> event)
 {
     //This is output event
     QList<DetectedEvent> countchange;
+
+    countchange = processEventsLocal(event);
+    if(!countchange.isEmpty()){
+        emit generateEvent(countchange);
+    }
+
+}
+
+QList<DetectedEvent> LineCrossCountNode::processEventsLocal(const QList<DetectedEvent> event)
+{
+    //This is output event
+    QList<DetectedEvent> countchange;
     foreach(DetectedEvent linecrossevent, event){
 
         QList<QString> message = linecrossevent.getMessage().split(",");
@@ -38,10 +50,5 @@ void LineCrossCountNode::processEvents(const QList<DetectedEvent> event)
 
         }
     }
-    if(!countchange.isEmpty()){
-        emit generateEvent(countchange);
-    }
-
-
-
+    return countchange;
 }

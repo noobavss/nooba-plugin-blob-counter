@@ -16,6 +16,7 @@ public:
     ~LineCrossingNode();
 
     void processEvents(const QList<DetectedEvent> event);
+    QList<DetectedEvent> processEventsLocal(const QList<DetectedEvent> event);
     inline QPoint getPoint1(){return point1;}
     inline QPoint getPoint2(){return point2;}
     inline void setPoint1_x(int point1_x){point1.setX(point1_x);}

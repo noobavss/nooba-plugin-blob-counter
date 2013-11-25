@@ -35,6 +35,8 @@ bool BlobcounterPlugin::init()
     connect(this, SIGNAL(generateEvent(QList<DetectedEvent>)), &lineCrossDetector, SLOT(captureEvent(QList<DetectedEvent>)));
     connect(&lineCrossDetector, SIGNAL(generateEvent(QList<DetectedEvent>)), &lineCrossCounter, SLOT(captureEvent(QList<DetectedEvent>)));
     connect(&lineCrossCounter, SIGNAL(generateEvent(QList<DetectedEvent>)), this, SLOT(onCaptureEvent(QList<DetectedEvent>)));
+    connect(&lineCrossCounter, SIGNAL(generateEvent(QList<DetectedEvent>)), &crossCountAnomalyNode, SLOT(captureEvent(QList<DetectedEvent>)));
+    connect(&crossCountAnomalyNode, SIGNAL(generateEvent(QList<DetectedEvent>)), this, SLOT(onCaptureEvent(QList<DetectedEvent>)));
 
     createFrameViewer("CountingLine");
 
@@ -45,6 +47,21 @@ bool BlobcounterPlugin::init()
 
 //    createPointParam("Point1",QPoint(500,0));
 //    createPointParam("Point2",QPoint(500,700));
+
+    createIntParam("time_window(frames)",300,10000,0);
+    createIntParam("min_of_count_range",0,100,0);
+    createIntParam("max_of_count_range",2,100,0);
+
+    crossCountAnomalyNode.setTime_window(300);
+    crossCountAnomalyNode.setMax_of_count_range(2);
+    crossCountAnomalyNode.setMin_of_count_range(0);
+
+    QStringList rangeoptions;
+    rangeoptions << "Out Range"
+                 << "In Range";
+    createMultiValParamRequest("Anomaly Region",rangeoptions);
+
+    crossCountAnomalyNode.setAnomal_range(false);
     return true;
 }
 
@@ -90,6 +107,18 @@ void BlobcounterPlugin::onIntParamChanged(const QString &varName, int val){
         lineCrossDetector.setPoint2_y(val);
         debugMsg("point2-y set to "  + QString("%1").arg(val));
     }
+    else if(varName == "time_window(frames)"){
+        crossCountAnomalyNode.setTime_window(val);
+        debugMsg("time_window(frames) set to "  + QString("%1").arg(val));
+    }
+    else if(varName == "min_of_count_range"){
+        crossCountAnomalyNode.setMin_of_count_range(val);
+        debugMsg("min_of_count_range set to "  + QString("%1").arg(val));
+    }
+    else if(varName == "max_of_count_range"){
+        crossCountAnomalyNode.setMax_of_count_range(val);
+        debugMsg("max_of_count_range set to "  + QString("%1").arg(val));
+    }
 }
 
 //void BlobcounterPlugin::onPointParamChanged(const QString& varName, const QPointF& val){
@@ -109,16 +138,30 @@ void BlobcounterPlugin::onIntParamChanged(const QString &varName, int val){
 //    return;
 //}
 
-void BlobcounterPlugin::inputData(const PluginPassData& data){
+void BlobcounterPlugin::onMultiValParamChanged(const QString &varName, const QString &val){
+    if(varName == "Anomaly Region"){
+        if(val == "In Range"){
+            crossCountAnomalyNode.setAnomal_range(true);
+            debugMsg("Anomaly Region set to In Range");
+        }
+        else{
+            crossCountAnomalyNode.setAnomal_range(false);
+            debugMsg("Anomaly Region set to Out Range");
+        }
+    }
+}
+
+void BlobcounterPlugin::inputData(const QStringList &strList, QList<QImage> imageList){
 
     QList<DetectedEvent> receivedEvents;
-    foreach(QString str,data.strList()){
+    QStringList stringList = strList;
+    foreach(QString str,stringList){
         //debugMsg("recv" + str);
         QList<QString> parameters = str.split(" ");
         receivedEvents.append(DetectedEvent(parameters.at(0),parameters.at(1),parameters.at(2).toFloat()));
     }
 
-    QImage temp = data.getImage();
+    QImage temp = imageList.at(0);
 
     cv::Mat lineviewer(temp.height(),temp.width(),CV_8UC3,(uchar*)temp.bits(),temp.bytesPerLine());
     cv::line(lineviewer,cv::Point(lineCrossDetector.getPoint1().x(),lineCrossDetector.getPoint1().y()),

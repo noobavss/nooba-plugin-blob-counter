@@ -11,6 +11,8 @@
 #include <featurenode.h>
 #include <linecrossingnode.h>
 #include <linecrosscountnode.h>
+#include <countanomalynode.h>
+
 //#include "filewriternode.h"
 
 class BLOBCOUNTERPLUGIN_EXPORT BlobcounterPlugin: public NoobaPluginAPI
@@ -39,10 +41,10 @@ public slots:
 //    void onStringParamChanged(const QString& varName, const QString& val);
     void onIntParamChanged(const QString &varName, int val);
 //    void onDoubleParamChanged(const QString &varName, double val);
-//    void onMultiValParamChanged(const QString &varName, const QString &val);
+    void onMultiValParamChanged(const QString &varName, const QString &val);
 //    void onPointParamChanged(const QString& varName, const QPointF& val);
 
-    void inputData(const PluginPassData& data);
+    void inputData(const QStringList &strList, QList<QImage> imageList);
 
     void onCaptureEvent(QList<DetectedEvent> captured_event);
 
@@ -52,6 +54,7 @@ signals:
 private:
     LineCrossingNode lineCrossDetector;
     LineCrossCountNode lineCrossCounter;
+    CountAnomalyNode crossCountAnomalyNode;
     QImage convertToQImage(cv::Mat &cvImg);
 };
 

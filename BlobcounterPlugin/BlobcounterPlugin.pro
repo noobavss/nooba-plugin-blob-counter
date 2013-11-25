@@ -21,13 +21,15 @@ HEADERS += blobcounterplugin.h blobcounterplugin_global.h \
     detectedevent.h \
     linecrosscountnode.h \
     linecrossingnode.h \
-    featurenode.h
+    featurenode.h \
+    countanomalynode.h
 
 SOURCES += blobcounterplugin.cpp \
     featurenode.cpp \
     detectedevent.cpp \
     linecrosscountnode.cpp \
-    linecrossingnode.cpp
+    linecrossingnode.cpp \
+    countanomalynode.cpp
 
 
 CONFIG(debug, debug|release): DESTDIR = $$PWD/../../../NoobaVSS_build/NoobaFE/Debug/plugins/

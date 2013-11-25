@@ -6,6 +6,7 @@ DetectedEvent::DetectedEvent(QObject *parent)
 }
 
 DetectedEvent::DetectedEvent(const DetectedEvent &other)
+    :QObject()
 {
     event_identifier = other.getIdentifier();
     event_message = other.getMessage();

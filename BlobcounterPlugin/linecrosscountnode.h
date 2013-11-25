@@ -12,6 +12,7 @@ public:
     explicit LineCrossCountNode(FeatureNode* parent = 0);
     ~LineCrossCountNode();
     void processEvents(const QList<DetectedEvent> event);
+    QList<DetectedEvent> processEventsLocal(const QList<DetectedEvent> event);
 
 private:
     enum BlobRegion
