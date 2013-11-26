@@ -40,10 +40,10 @@ bool BlobcounterPlugin::init()
 
     createFrameViewer("CountingLine");
 
-    createIntParam("point1-x",500,1024,0);
-    createIntParam("point1-y",0,768,0);
-    createIntParam("point2-x",500,1024,0);
-    createIntParam("point2-y",700,768,0);
+//    createIntParam("point1-x",500,1024,0);
+//    createIntParam("point1-y",0,768,0);
+//    createIntParam("point2-x",500,1024,0);
+//    createIntParam("point2-y",700,768,0);
 
 //    createPointParam("Point1",QPoint(500,0));
 //    createPointParam("Point2",QPoint(500,700));
@@ -52,6 +52,7 @@ bool BlobcounterPlugin::init()
     createIntParam("min_of_count_range",0,100,0);
     createIntParam("max_of_count_range",2,100,0);
 
+    createLineParam("Counting Line","CountingLine",QColor(0,0,255));
     crossCountAnomalyNode.setTime_window(300);
     crossCountAnomalyNode.setMax_of_count_range(2);
     crossCountAnomalyNode.setMin_of_count_range(0);
@@ -121,6 +122,23 @@ void BlobcounterPlugin::onIntParamChanged(const QString &varName, int val){
     }
 }
 
+void BlobcounterPlugin::onLineParamUpdated(const QString &varName, const QString frameViewerTitle, QLine line){
+    Q_UNUSED(frameViewerTitle)
+
+
+    if(varName == "Counting Line"){
+        lineCrossDetector.setPoint1_x(line.x1());
+        lineCrossDetector.setPoint1_y(line.y1());
+        lineCrossDetector.setPoint2_x(line.x2());
+        lineCrossDetector.setPoint2_y(line.y2());
+        debugMsg(QString("Counting Line set to (%1,%2)- (%3,%4)").arg(line.x1()).arg(line.y1()).arg(line.x2()).arg(line.y2()));
+    }
+    //        lineCrossDetector.setPoint1_x(p.x());
+    //        lineCrossDetector.setPoint1_y(p.y());
+    //        debugMsg(QString("Point1 set to (%1,%2)").arg(p.x()).arg(p.y()));
+    //    }
+}
+
 //void BlobcounterPlugin::onPointParamChanged(const QString& varName, const QPointF& val){
 //    QPoint p;
 //    p = val.toPoint();
@@ -166,8 +184,21 @@ void BlobcounterPlugin::inputData(const QStringList &strList, QList<QImage> imag
     cv::Mat lineviewer(temp.height(),temp.width(),CV_8UC3,(uchar*)temp.bits(),temp.bytesPerLine());
     cv::line(lineviewer,cv::Point(lineCrossDetector.getPoint1().x(),lineCrossDetector.getPoint1().y()),
              cv::Point(lineCrossDetector.getPoint2().x(),lineCrossDetector.getPoint2().y()),
-             cv::Scalar(0,0,255),3);
+             cv::Scalar(0,0,255),3,CV_AA);
 
+    cv::Point r1_label_position = cv::Point(((lineCrossDetector.getPoint1().x() + lineCrossDetector.getPoint2().x())/2) + 40,((lineCrossDetector.getPoint1().y() + lineCrossDetector.getPoint2().y())/2) - 40);
+    cv::Point r2_label_position = cv::Point(((lineCrossDetector.getPoint1().x() + lineCrossDetector.getPoint2().x())/2) - 40,((lineCrossDetector.getPoint1().y() + lineCrossDetector.getPoint2().y())/2) + 40);
+
+    QPoint l_r1 = QPoint(r1_label_position.x,r1_label_position.y);
+
+    if(lineCrossDetector.getBlobRegion(l_r1) == LineCrossingNode::BLOB_REGION_ONE){
+        cv::putText(lineviewer,"R1",r1_label_position,cv::FONT_ITALIC,1,cv::Scalar(0,0,255),3);
+        cv::putText(lineviewer,"R2",r2_label_position,cv::FONT_ITALIC,1,cv::Scalar(0,0,255),3);
+    }
+    else{
+        cv::putText(lineviewer,"R2",r1_label_position,cv::FONT_ITALIC,1,cv::Scalar(0,0,255),3);
+        cv::putText(lineviewer,"R1",r2_label_position,cv::FONT_ITALIC,1,cv::Scalar(0,0,255),3);
+    }
 
     updateFrameViewer("CountingLine",convertToQImage(lineviewer));
 

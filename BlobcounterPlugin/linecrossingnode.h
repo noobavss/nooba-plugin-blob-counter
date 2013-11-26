@@ -12,6 +12,13 @@
 class LineCrossingNode : public FeatureNode
 {
 public:
+    enum BlobRegion
+    {
+      BLOB_REGION_UNKNOWN = 0,
+      BLOB_REGION_ONE  = 1,
+      BLOB_REGION_TWO  = 2
+    };
+
     explicit LineCrossingNode(FeatureNode* parent = 0);
     ~LineCrossingNode();
 
@@ -24,20 +31,16 @@ public:
     inline void setPoint2_x(int point2_x){point2.setX(point2_x);}
     inline void setPoint2_y(int point2_y){point2.setY(point2_y);}
 
+    BlobRegion getBlobRegion(QPoint centroid);
+
 private:
     QPoint point1;
     QPoint point2;
 
 
-    enum BlobRegion
-    {
-      BLOB_REGION_UNKNOWN = 0,
-      BLOB_REGION_ONE  = 1,
-      BLOB_REGION_TWO  = 2
-    };
+
 
     QHash<QString,DetectedEvent> previousEvents;
-    BlobRegion getBlobRegion(QPoint centroid);
 };
 
 #endif // LINECROSSINGNODE_H

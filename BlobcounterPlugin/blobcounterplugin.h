@@ -44,6 +44,8 @@ public slots:
     void onMultiValParamChanged(const QString &varName, const QString &val);
 //    void onPointParamChanged(const QString& varName, const QPointF& val);
 
+    void onLineParamUpdated(const QString &varName, const QString frameViewerTitle, QLine line);
+
     void inputData(const QStringList &strList, QList<QImage> imageList);
 
     void onCaptureEvent(QList<DetectedEvent> captured_event);
