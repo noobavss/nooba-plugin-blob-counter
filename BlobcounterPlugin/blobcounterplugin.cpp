@@ -49,7 +49,7 @@ bool BlobcounterPlugin::init()
 //    createPointParam("Point2",QPoint(500,700));
 
     createIntParam("time_window(frames)",300,10000,0);
-    createIntParam("min_of_count_range",0,100,0);
+    createIntParam("min_of_count_range",-1,100,-1);
     createIntParam("max_of_count_range",2,100,0);
 
     createLineParam("Counting Line","CountingLine",QColor(0,0,255));
@@ -58,9 +58,14 @@ bool BlobcounterPlugin::init()
     crossCountAnomalyNode.setMin_of_count_range(0);
 
     QStringList rangeoptions;
-    rangeoptions << "Out Range"
-                 << "In Range";
+    rangeoptions << "Out Range(-Inf,min)U(max,Inf)"
+                 << "In Range[min,max]";
     createMultiValParamRequest("Anomaly Region",rangeoptions);
+
+    QStringList direction_options;
+    direction_options << "R1=>R2"
+                      << "R2=>R1";
+    createMultiValParamRequest("Counting Direction",direction_options);
 
     crossCountAnomalyNode.setAnomal_range(false);
     return true;
@@ -86,6 +91,9 @@ void BlobcounterPlugin::onCaptureEvent(QList<DetectedEvent> captured_event){
 
 
     foreach(DetectedEvent e, captured_event){
+        if(e.getIdentifier() == "<FONT COLOR='#ff0000'>OutOfPhase"){
+            generateAlert("CountingLine","<FONT COLOR='#ff0000'>OutOfPhase",nooba::AmberAlert);
+        }
         debugMsg(QString(e.getIdentifier() + " " + e.getMessage() + " %1").arg(e.getConfidence()));
     }
     return;
@@ -158,13 +166,26 @@ void BlobcounterPlugin::onLineParamUpdated(const QString &varName, const QString
 
 void BlobcounterPlugin::onMultiValParamChanged(const QString &varName, const QString &val){
     if(varName == "Anomaly Region"){
-        if(val == "In Range"){
+        if(val == "In Range[min,max]"){
             crossCountAnomalyNode.setAnomal_range(true);
-            debugMsg("Anomaly Region set to In Range");
+            debugMsg("Anomaly Region set to In Range[min,max]");
         }
         else{
+            //Out Range(-Inf,min)U(max,Inf)
             crossCountAnomalyNode.setAnomal_range(false);
-            debugMsg("Anomaly Region set to Out Range");
+            debugMsg("Anomaly Region set to Out Range(-Inf,min)U(max,Inf)");
+        }
+    }
+    //Counting Direction
+    //"R1=>R2"  "R2=>R1"
+    if(varName == "Counting Direction"){
+        if(val == "R1=>R2"){
+            crossCountAnomalyNode.setDirection(CountAnomalyNode::R1_to_R2);
+            debugMsg("Counting Direction set to R1=>R2");
+        }
+        else{
+            crossCountAnomalyNode.setDirection(CountAnomalyNode::R2_to_R1);
+            debugMsg("Counting Direction set to R2=>R1");
         }
     }
 }
@@ -192,12 +213,12 @@ void BlobcounterPlugin::inputData(const QStringList &strList, QList<QImage> imag
     QPoint l_r1 = QPoint(r1_label_position.x,r1_label_position.y);
 
     if(lineCrossDetector.getBlobRegion(l_r1) == LineCrossingNode::BLOB_REGION_ONE){
-        cv::putText(lineviewer,"R1",r1_label_position,cv::FONT_ITALIC,1,cv::Scalar(0,0,255),3);
-        cv::putText(lineviewer,"R2",r2_label_position,cv::FONT_ITALIC,1,cv::Scalar(0,0,255),3);
-    }
-    else{
         cv::putText(lineviewer,"R2",r1_label_position,cv::FONT_ITALIC,1,cv::Scalar(0,0,255),3);
         cv::putText(lineviewer,"R1",r2_label_position,cv::FONT_ITALIC,1,cv::Scalar(0,0,255),3);
+    }
+    else{
+        cv::putText(lineviewer,"R1",r1_label_position,cv::FONT_ITALIC,1,cv::Scalar(0,0,255),3);
+        cv::putText(lineviewer,"R2",r2_label_position,cv::FONT_ITALIC,1,cv::Scalar(0,0,255),3);
     }
 
     updateFrameViewer("CountingLine",convertToQImage(lineviewer));
@@ -205,6 +226,7 @@ void BlobcounterPlugin::inputData(const QStringList &strList, QList<QImage> imag
     emit generateEvent(receivedEvents);
     return;
 }
+
 
 QImage BlobcounterPlugin::convertToQImage(cv::Mat &cvImg)
 {

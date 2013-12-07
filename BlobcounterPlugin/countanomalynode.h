@@ -9,6 +9,11 @@
 class CountAnomalyNode: public FeatureNode
 {
 public:
+    enum COUNTING_DIRECTION{
+        R1_to_R2 = true,
+        R2_to_R1 = false
+    };
+
     explicit CountAnomalyNode(FeatureNode* parent = 0);
     ~CountAnomalyNode();
     void processEvents(const QList<DetectedEvent> event);
@@ -26,14 +31,15 @@ public:
     bool getAnomal_range() const;
     void setAnomal_range(bool range);
 
+    void setDirection(COUNTING_DIRECTION counting_direction);
 private:
     bool anomal_range;  //in true, out false
     int time_window;
     int min_of_count_range;
     int max_of_count_range;
-
-    QQueue<DetectedEvent> previousEventsR1_to_R2;
-    QQueue<DetectedEvent> previousEventsR2_to_R1;
+    COUNTING_DIRECTION direction; //R1 to R2 => true
+                    //R2 to R1 => false
+    QQueue<DetectedEvent> previousEvents;
 
 
 };

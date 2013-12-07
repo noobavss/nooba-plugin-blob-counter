@@ -7,7 +7,8 @@ CountAnomalyNode::CountAnomalyNode(FeatureNode *parent) :
     anomal_range(true),
     time_window(300),
     min_of_count_range(0),
-    max_of_count_range(5)
+    max_of_count_range(5),
+    direction(R1_to_R2)
 {
 }
 
@@ -31,11 +32,9 @@ QList<DetectedEvent> CountAnomalyNode::processEventsLocal(const QList<DetectedEv
 {
     //This is output event
     QList<DetectedEvent> countanomaly;
-    int current_frame_id;
-    int r1_to_r2_count_old;
-    int r2_to_r1_count_old;
-    int r1_to_r2_count_new;
-    int r2_to_r1_count_new;
+    int current_frame_id = 0;
+    int count_old = 0;
+    int count_new = 0;
 
     if(event.isEmpty()){
         return countanomaly;
@@ -57,98 +56,60 @@ QList<DetectedEvent> CountAnomalyNode::processEventsLocal(const QList<DetectedEv
 
 //    Insert new events anyway to the queue
     foreach(DetectedEvent e, event){
-         if(e.getMessage().section(",",2,2) == "R1->R2"){
-            qDebug() << "Going R1->R2";
+         if((e.getMessage().section(",",2,2) == "R1->R2" && direction == R1_to_R2)
+                 || (e.getMessage().section(",",2,2) == "R2->R1"  && direction == R2_to_R1)){
+            //checking weather the message is in configured direction. Otherwise, neglect the message
 
             //Add New event to the queue
-            previousEventsR1_to_R2.enqueue(e);
+            previousEvents.enqueue(e);
 
             //Remove older events from the queues, and take the first of the time period.
             while(true){
-                DetectedEvent e = previousEventsR1_to_R2.head();
+                DetectedEvent e = previousEvents.head();
                 int frame_id = e.getMessage().section(",",0,0).toInt();
                 if(current_frame_id - frame_id > time_window){
-                    previousEventsR1_to_R2.dequeue();
-                    if(previousEventsR1_to_R2.isEmpty()){
+                    previousEvents.dequeue();
+                    if(previousEvents.isEmpty()){
                         return countanomaly;
                     }
                 }
                 else{
                     //e is the last related event received till
                     //the beginning of the time period.
-                    r1_to_r2_count_old = e.getMessage().section(",",3,3).toInt();
-                    qDebug() << "r1_to_r2_count_old: "<< r1_to_r2_count_old;
+                    count_old = e.getMessage().section(",",3,3).toInt();
+                    //qDebug() << "r1->r2 count_old: "<< count_old;
 
                     break;
                 }
             }
-            r1_to_r2_count_new = e.getMessage().section(",",3,3).toInt();
-            qDebug() << "r1_to_r2_count_new: "<< r1_to_r2_count_new;
+            count_new = e.getMessage().section(",",3,3).toInt();
+            //qDebug() << "r1->r2 count_new: "<< count_new;
 
             //This means we have all required numbers.
             //So logic
             if(anomal_range == true){
                 //Being within the range is anomal
-               if(r1_to_r2_count_new - r1_to_r2_count_old < max_of_count_range
-                       && r1_to_r2_count_new - r1_to_r2_count_old > min_of_count_range){
-                   countanomaly.append(DetectedEvent("<FONT COLOR='#ff0000'>OutOfPhase", "of the flow R1->R2",1.0));
+               if(count_new - count_old <= max_of_count_range
+                       && count_new - count_old >= min_of_count_range){
+                   if(direction == R1_to_R2){
+                        countanomaly.append(DetectedEvent("<FONT COLOR='#ff0000'>OutOfPhase", "of the flow R1->R2",1.0));
+                   }else{
+                       countanomaly.append(DetectedEvent("<FONT COLOR='#ff0000'>OutOfPhase", "of the flow R2->R1",1.0));
+                   }
                }
             }else{
                 //Being outside the range is anomal
-               if(r1_to_r2_count_new - r1_to_r2_count_old >= max_of_count_range
-                       && r1_to_r2_count_new - r1_to_r2_count_old <= min_of_count_range){
-                   countanomaly.append(DetectedEvent("<FONT COLOR='#ff0000'>OutOfPhase", "of the flow R1->R2",1.0));
+               if(count_new - count_old > max_of_count_range
+                       || count_new - count_old < min_of_count_range){
+                   if(direction == R1_to_R2){
+                       countanomaly.append(DetectedEvent("<FONT COLOR='#ff0000'>OutOfPhase", "of the flow R1->R2",1.0));
+                   }else{
+                       countanomaly.append(DetectedEvent("<FONT COLOR='#ff0000'>OutOfPhase", "of the flow R2->R1",1.0));
+                   }
                }
             }
 
          }
-         else if(e.getMessage().section(",",2,2) == "R2->R1"){
-             qDebug() << "Going R2->R1";
-
-             //Add New event to the queue
-             previousEventsR2_to_R1.enqueue(e);
-
-             //Remove older events from the queues, and take the first of the time period.
-             while(true){
-                 DetectedEvent e = previousEventsR2_to_R1.head();
-                 int frame_id = e.getMessage().section(",",0,0).toInt();
-                 if(current_frame_id - frame_id > time_window){
-                     previousEventsR2_to_R1.dequeue();
-                     if(previousEventsR2_to_R1.isEmpty()){
-                         return countanomaly;
-                     }
-                 }
-                 else{
-                     //e is the last related event received till
-                     //the beginning of the time period.
-                     r2_to_r1_count_old = e.getMessage().section(",",3,3).toInt();
-                     qDebug() << "r2_to_r1_count_old: "<< r2_to_r1_count_old;
-
-                     break;
-                 }
-             }
-             r2_to_r1_count_new = e.getMessage().section(",",3,3).toInt();
-             qDebug() << "r2_to_r1_count_new: "<< r2_to_r1_count_new;
-
-             //This means we have all required numbers.
-             //So logic
-             if(anomal_range == true){
-                 //Being within the range is anomal
-                if(r2_to_r1_count_new - r2_to_r1_count_old < max_of_count_range
-                        && r2_to_r1_count_new - r2_to_r1_count_old > min_of_count_range){
-                    countanomaly.append(DetectedEvent("<FONT COLOR='#ff0000'>OutOfPhase", "of the flow R2->R1",1.0));
-                }
-             }else{
-                 //Being outside the range is anomal
-                if(r2_to_r1_count_new - r2_to_r1_count_old >= max_of_count_range
-                        || r2_to_r1_count_new - r2_to_r1_count_old <= min_of_count_range){
-                    countanomaly.append(DetectedEvent("<FONT COLOR='#ff0000'>OutOfPhase", "of the flow R2->R1",1.0));
-                }
-             }
-         }
-
-
-
     }
     return countanomaly;
 }
@@ -189,6 +150,12 @@ void CountAnomalyNode::setAnomal_range(bool value)
 void CountAnomalyNode::setTime_window(int value)
 {
     time_window = value;
+}
+
+void CountAnomalyNode::setDirection(COUNTING_DIRECTION counting_direction)
+{
+    direction = counting_direction;
+    previousEvents.clear();
 }
 
 
